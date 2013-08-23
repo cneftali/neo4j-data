@@ -37,15 +37,15 @@ public class BatchInsertDocTest {
     public static final int NUMBER_OF_MEMBERS = 100000;
 
     private static int allTransactionCount;
-    private static int noTransaction;
+    private static int allActionCount;
+    private static int noTransactionMember;
+    private static int noActionMember;
 
     private static int indice = 0;
     private static int product_min_indice = 0;
     private static int product_max_indice = 0;
     private static int site_min_indice = 0;
     private static int site_max_indice = 0;
-    private static int member_min_indice = 0;
-    private static int member_max_indice = 0;
 
     public static void main(final String[] args) throws IOException {
 
@@ -62,8 +62,12 @@ public class BatchInsertDocTest {
         indexProvider.shutdown();
         inserter.shutdown();
 
+        float actualNoTransactionMember = (float) noTransactionMember / (float) NUMBER_OF_MEMBERS * 100;
+        float actualNoActivityMember = (float) noActionMember / (float) NUMBER_OF_MEMBERS * 100;
+        LOGGER.info("No transaction user percent : {}%", actualNoTransactionMember);
+        LOGGER.info("No activity user percent : {}%", actualNoActivityMember);
         LOGGER.info("Count all transactions : {}", allTransactionCount);
-        LOGGER.info("Count all no transactions : {}", noTransaction);
+        LOGGER.info("Count all actions : {}", allActionCount);
         LOGGER.info("Generation done !");
     }
 
@@ -137,7 +141,7 @@ public class BatchInsertDocTest {
         persons.setCacheCapacity("type", 100000);
 
         //Member
-        member_min_indice = indice + 1;
+        int member_min_indice = indice + 1;
         LOGGER.info("Begin member indice : {}", member_min_indice);
         for (int cpt = member_min_indice; cpt < member_min_indice + NUMBER_OF_MEMBERS + 1; cpt++) {
             final Map<String, Object> properties = new HashMap<>(6);
@@ -156,8 +160,8 @@ public class BatchInsertDocTest {
             indice++;
         }
 
-        member_max_indice = indice;
-        LOGGER.info("End member indice : {}", indice);
+        int member_max_indice = indice;
+        LOGGER.info("End member indice : {}", member_max_indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         persons.flush();
     }
@@ -170,26 +174,26 @@ public class BatchInsertDocTest {
                 final Map<String, Object> properties = new HashMap<>(2);
                 properties.put("amount", getRandomAmout());
                 properties.put("date", getRandomBusinessDate().getTime());
-                inserter.createRelationship(nodePerson, (long) randBetween(21, 1021), BUY, properties);
+                inserter.createRelationship(nodePerson, (long) randBetween(product_min_indice, product_max_indice), BUY, properties);
             }
             allTransactionCount += countTransaction;
         } else {
-            noTransaction++;
+            noTransactionMember++;
         }
     }
 
     //Activities
     public static void insertRelationshipSite(final BatchInserter inserter, long nodePerson) throws IOException {
         if (randBetween(0, 100) > (NO_ACTIVITY_USER_PERCENT)) {
-            int countTransaction = randBetween(1, MAX_ACTIVITY_PER_MEMBER);
-            for (int i = 0; i < countTransaction; i++) {
+            int countAction = randBetween(1, MAX_ACTIVITY_PER_MEMBER);
+            for (int i = 0; i < countAction; i++) {
                 final Map<String, Object> properties = new HashMap<>(1);
                 properties.put("date", getRandomBusinessDate().getTime());
-                inserter.createRelationship(nodePerson, (long) randBetween(1022, 31022), DynamicRelType.getType("ACTION" + randBetween(1, 10)), properties);
+                inserter.createRelationship(nodePerson, (long) randBetween(site_min_indice, site_max_indice), DynamicRelType.getType("ACTION" + randBetween(1, 10)), properties);
             }
-            allTransactionCount += countTransaction;
+            allActionCount += countAction;
         } else {
-            noTransaction++;
+            noActionMember++;
         }
     }
 
