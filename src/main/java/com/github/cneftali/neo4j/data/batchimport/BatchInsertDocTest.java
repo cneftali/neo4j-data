@@ -32,6 +32,8 @@ public class BatchInsertDocTest {
     private static final String DB_PATH = "target/graph.db";
     private static final double MAX_AMOUNT = 1000.0;
     private static final double MIN_AMOUNT = 1.0;
+    public static final int PRODUCTS = 1000;
+    public static final int SITE = 30000;
 
 
     private static int allTransactionCount;
@@ -63,6 +65,7 @@ public class BatchInsertDocTest {
         final BatchInserterIndex countries = indexProvider.nodeIndex("Countries", MapUtil.stringMap("type", "exact"));
         countries.setCacheCapacity("name", Country.values().length);
 
+        LOGGER.info("Begin country indice : {}", indice);
         for (final Country country : Country.values()) {
             final Map<String, Object> properties = new HashMap<>(2);
             properties.put("name", country.name());
@@ -71,7 +74,7 @@ public class BatchInsertDocTest {
             countries.add(node, properties);
             indice++;
         }
-
+        LOGGER.info("End country indice : {}", indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         countries.flush();
     }
@@ -82,7 +85,9 @@ public class BatchInsertDocTest {
         produits.setCacheCapacity("name", 1000);
 
         //Produit
-        for (int cpt = 21; cpt <= 1021; cpt++) {
+        int productIndice = indice + 1;
+        LOGGER.info("Begin product indice : {}", productIndice);
+        for (int cpt = productIndice; cpt < productIndice + PRODUCTS + 1; cpt++) {
 
             final Map<String, Object> properties = new HashMap<>(3);
             properties.put("id", cpt);
@@ -91,8 +96,9 @@ public class BatchInsertDocTest {
 
             long node = inserter.createNode(properties);
             produits.add(node, properties);
+            indice++;
         }
-
+        LOGGER.info("End product indice : {}", indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         produits.flush();
     }
@@ -102,8 +108,10 @@ public class BatchInsertDocTest {
         activities.setCacheCapacity("site", 30000);
         activities.setCacheCapacity("id", 30000);
 
-        //Produit
-        for (int cpt = 1022; cpt <= 31022; cpt++) {
+        //Site
+        int siteIndice = indice + 1;
+        LOGGER.info("Begin site indice : {}", siteIndice);
+        for (int cpt = siteIndice; cpt < siteIndice + SITE + 1; cpt++) {
 
             final Map<String, Object> properties = new HashMap<>(2);
             properties.put("id", cpt);
@@ -111,8 +119,10 @@ public class BatchInsertDocTest {
 
             long node = inserter.createNode(properties);
             activities.add(node, properties);
+            indice++;
         }
 
+        LOGGER.info("End site indice : {}", indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         activities.flush();
     }
