@@ -34,6 +34,7 @@ public class BatchInsertDocTest {
     private static final double MIN_AMOUNT = 1.0;
     public static final int PRODUCTS = 1000;
     public static final int SITE = 30000;
+    public static final int MEMBER = 100000;
 
 
     private static int allTransactionCount;
@@ -134,7 +135,9 @@ public class BatchInsertDocTest {
         persons.setCacheCapacity("type", 100000);
 
         //Member
-        for (int cpt = 31023; cpt <= 131023; cpt++) {
+        int memberIndice = indice + 1;
+        LOGGER.info("Begin member indice : {}", memberIndice);
+        for (int cpt = memberIndice; cpt < memberIndice + MEMBER + 1; cpt++) {
             final Map<String, Object> properties = new HashMap<>(6);
             properties.put("id", cpt);
             properties.put("firstname", "firstname" + randBetween(1, MAX_FIRST_NAME));
@@ -148,8 +151,10 @@ public class BatchInsertDocTest {
             insertRelationshipPersonProduit(inserter, node);
             insertRelationshipSite(inserter, node);
             persons.add(node, properties);
+            indice++;
         }
 
+        LOGGER.info("End member indice : {}", indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         persons.flush();
     }
