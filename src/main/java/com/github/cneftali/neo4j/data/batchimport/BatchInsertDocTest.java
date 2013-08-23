@@ -16,8 +16,11 @@ import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchInsertDocTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchInsertDocTest.class);
 
 	private static final int MAX_LAST_NAME = 150;
 	private static final int MAX_FIRST_NAME = 150;
@@ -25,18 +28,18 @@ public class BatchInsertDocTest {
 	private static final int MAX_TRANSACTION_PER_MEMBER = 100;
 	private static final int NO_ACTIVITY_USER_PERCENT = 80;
 	private static final int MAX_ACTIVITY_PER_MEMBER = 100;
-	
+
 	private static final String DB_PATH = "target/graph.db";
 	private static final double MAX_AMOUNT = 1000.0;
 	private static final double MIN_AMOUNT = 1.0;
-	
-	
+
+
 	private static int allTransactionCount;
 	private static int noTransaction;
-	
+
 	public static void main(final String[] args) throws IOException {
 
-		System.out.println("Generation ...");
+		LOGGER.info("Generation ...");
 		final BatchInserter inserter = BatchInserters.inserter(DB_PATH);
 		final BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
 
@@ -48,22 +51,24 @@ public class BatchInsertDocTest {
 		// Make sure to shut down the index provider as well
 		indexProvider.shutdown();
 		inserter.shutdown();
-		
-		System.out.println("Generation done !");
+
+        LOGGER.info("Count all transactions : {}", allTransactionCount);
+        LOGGER.info("Count all no transactions : {}", noTransaction);
+		LOGGER.info("Generation done !");
 	}
 
 	private static void insertCountries(final BatchInserter inserter, final BatchInserterIndexProvider indexProvider) {
 		final BatchInserterIndex countries = indexProvider.nodeIndex("Countries", MapUtil.stringMap("type", "exact"));
 		countries.setCacheCapacity("name", Country.values().length);
-		
+
 		for (final Country country : Country.values()) {
 			final Map<String, Object> properties = new HashMap<>(2);
 			properties.put("name", country.name());
-			
+
 			long node = inserter.createNode(properties);
 			countries.add(node, properties);
 		}
-		
+
 		//make the changes visible for reading, use this sparsely, requires IO!
 		countries.flush();
 	}
@@ -80,11 +85,11 @@ public class BatchInsertDocTest {
 			properties.put("id", cpt);
 			properties.put("name", "product" + String.valueOf(cpt));
 			properties.put("description", "desc" + String.valueOf(cpt));
-			
+
 			long node = inserter.createNode( properties );
 			produits.add(node, properties);
 		}
-		
+
 		//make the changes visible for reading, use this sparsely, requires IO!
 		produits.flush();
 	}
@@ -93,20 +98,20 @@ public class BatchInsertDocTest {
 		final BatchInserterIndex activities = indexProvider.nodeIndex("Sites", MapUtil.stringMap("type", "exact"));
 		activities.setCacheCapacity("site", 30000);
 		activities.setCacheCapacity("id", 30000);
-		
+
 		//Produit
 		for (int cpt = 1022; cpt <= 31022; cpt ++) {
 
 			final Map<String, Object> properties = new HashMap<>(2);
 			properties.put("id", cpt);
 			properties.put("site", "site" + String.valueOf(cpt));
-			
+
 			long node = inserter.createNode( properties );
 			activities.add(node, properties);
 		}
 
 		//make the changes visible for reading, use this sparsely, requires IO!
-		activities.flush();	
+		activities.flush();
 	}
 
 	public static void insertPersons(final BatchInserter inserter, final BatchInserterIndexProvider indexProvider) throws IOException {
@@ -180,7 +185,7 @@ public class BatchInsertDocTest {
 	public static void insertRelationshipPersonCountry(final BatchInserter inserter, long nodePerson) throws IOException {
 		inserter.createRelationship(nodePerson, (long) randBetween(1, Country.values().length), LIVES, null);
 	}
-	
+
 	private static java.util.Date getRandomBirthDay() {
 		final Calendar calendar = Calendar.getInstance();
 		int year = randBetween(1950, 2000);
@@ -190,11 +195,11 @@ public class BatchInsertDocTest {
 		calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
 		return calendar.getTime();
 	}
-	
+
 	private static int randBetween(int start, int end) {
 		return start + (int) Math.round(Math.random() * (end - start));
 	}
-	
+
 	private static double getRandomAmout() {
 		final Random random = new Random();
 		return MIN_AMOUNT + (MAX_AMOUNT - MIN_AMOUNT) * random.nextDouble();
