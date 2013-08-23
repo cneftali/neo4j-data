@@ -32,15 +32,20 @@ public class BatchInsertDocTest {
     private static final String DB_PATH = "target/graph.db";
     private static final double MAX_AMOUNT = 1000.0;
     private static final double MIN_AMOUNT = 1.0;
-    public static final int PRODUCTS = 1000;
-    public static final int SITE = 30000;
-    public static final int MEMBER = 100000;
-
+    public static final int NUMBER_OF_PRODUCTS = 1000;
+    public static final int NUMBER_OF_SITES = 30000;
+    public static final int NUMBER_OF_MEMBERS = 100000;
 
     private static int allTransactionCount;
     private static int noTransaction;
 
     private static int indice = 0;
+    private static int product_min_indice = 0;
+    private static int product_max_indice = 0;
+    private static int site_min_indice = 0;
+    private static int site_max_indice = 0;
+    private static int member_min_indice = 0;
+    private static int member_max_indice = 0;
 
     public static void main(final String[] args) throws IOException {
 
@@ -86,20 +91,19 @@ public class BatchInsertDocTest {
         produits.setCacheCapacity("name", 1000);
 
         //Produit
-        int productIndice = indice + 1;
-        LOGGER.info("Begin product indice : {}", productIndice);
-        for (int cpt = productIndice; cpt < productIndice + PRODUCTS + 1; cpt++) {
-
+        product_min_indice = indice + 1;
+        LOGGER.info("Begin product indice : {}", product_min_indice);
+        for (int cpt = product_min_indice; cpt < product_min_indice + NUMBER_OF_PRODUCTS + 1; cpt++) {
             final Map<String, Object> properties = new HashMap<>(3);
             properties.put("id", cpt);
             properties.put("name", "product" + String.valueOf(cpt));
             properties.put("description", "desc" + String.valueOf(cpt));
-
             long node = inserter.createNode(properties);
             produits.add(node, properties);
             indice++;
         }
-        LOGGER.info("End product indice : {}", indice);
+        product_max_indice = indice;
+        LOGGER.info("End product indice : {}", product_max_indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         produits.flush();
     }
@@ -110,20 +114,18 @@ public class BatchInsertDocTest {
         activities.setCacheCapacity("id", 30000);
 
         //Site
-        int siteIndice = indice + 1;
-        LOGGER.info("Begin site indice : {}", siteIndice);
-        for (int cpt = siteIndice; cpt < siteIndice + SITE + 1; cpt++) {
-
+        site_min_indice = indice + 1;
+        LOGGER.info("Begin site indice : {}", site_min_indice);
+        for (int cpt = site_min_indice; cpt < site_min_indice + NUMBER_OF_SITES + 1; cpt++) {
             final Map<String, Object> properties = new HashMap<>(2);
             properties.put("id", cpt);
             properties.put("site", "site" + String.valueOf(cpt));
-
             long node = inserter.createNode(properties);
             activities.add(node, properties);
             indice++;
         }
-
-        LOGGER.info("End site indice : {}", indice);
+        site_max_indice = indice;
+        LOGGER.info("End site indice : {}", site_max_indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         activities.flush();
     }
@@ -135,9 +137,9 @@ public class BatchInsertDocTest {
         persons.setCacheCapacity("type", 100000);
 
         //Member
-        int memberIndice = indice + 1;
-        LOGGER.info("Begin member indice : {}", memberIndice);
-        for (int cpt = memberIndice; cpt < memberIndice + MEMBER + 1; cpt++) {
+        member_min_indice = indice + 1;
+        LOGGER.info("Begin member indice : {}", member_min_indice);
+        for (int cpt = member_min_indice; cpt < member_min_indice + NUMBER_OF_MEMBERS + 1; cpt++) {
             final Map<String, Object> properties = new HashMap<>(6);
             properties.put("id", cpt);
             properties.put("firstname", "firstname" + randBetween(1, MAX_FIRST_NAME));
@@ -154,6 +156,7 @@ public class BatchInsertDocTest {
             indice++;
         }
 
+        member_max_indice = indice;
         LOGGER.info("End member indice : {}", indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         persons.flush();
