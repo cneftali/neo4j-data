@@ -1,5 +1,6 @@
 package com.github.cneftali.neo4j.data.batchimport;
 
+import org.apache.commons.io.FileUtils;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
@@ -9,6 +10,7 @@ import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,6 +52,11 @@ public class BatchInsertDocTest {
     public static void main(final String[] args) throws IOException {
 
         LOGGER.info("Generation ...");
+        File file = new File(DB_PATH);
+        if (file.exists()) {
+            LOGGER.info("Deleting existing directory");
+            FileUtils.deleteDirectory(file);
+        }
         final BatchInserter inserter = BatchInserters.inserter(DB_PATH);
         final BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
 
@@ -84,7 +91,7 @@ public class BatchInsertDocTest {
             countries.add(node, properties);
             indice++;
         }
-        LOGGER.info("End country indice : {}", indice);
+        LOGGER.info("End country indice : {}", indice - 1);
         //make the changes visible for reading, use this sparsely, requires IO!
         countries.flush();
     }
@@ -95,9 +102,9 @@ public class BatchInsertDocTest {
         produits.setCacheCapacity("name", 1000);
 
         //Produit
-        product_min_indice = indice + 1;
+        product_min_indice = indice;
         LOGGER.info("Begin product indice : {}", product_min_indice);
-        for (int cpt = product_min_indice; cpt < product_min_indice + NUMBER_OF_PRODUCTS + 1; cpt++) {
+        for (int cpt = product_min_indice; cpt < product_min_indice + NUMBER_OF_PRODUCTS; cpt++) {
             final Map<String, Object> properties = new HashMap<>(3);
             properties.put("id", cpt);
             properties.put("name", "product" + String.valueOf(cpt));
@@ -106,7 +113,7 @@ public class BatchInsertDocTest {
             produits.add(node, properties);
             indice++;
         }
-        product_max_indice = indice;
+        product_max_indice = indice - 1;
         LOGGER.info("End product indice : {}", product_max_indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         produits.flush();
@@ -118,9 +125,9 @@ public class BatchInsertDocTest {
         activities.setCacheCapacity("id", 30000);
 
         //Site
-        site_min_indice = indice + 1;
+        site_min_indice = indice;
         LOGGER.info("Begin site indice : {}", site_min_indice);
-        for (int cpt = site_min_indice; cpt < site_min_indice + NUMBER_OF_SITES + 1; cpt++) {
+        for (int cpt = site_min_indice; cpt < site_min_indice + NUMBER_OF_SITES; cpt++) {
             final Map<String, Object> properties = new HashMap<>(2);
             properties.put("id", cpt);
             properties.put("site", "site" + String.valueOf(cpt));
@@ -128,7 +135,7 @@ public class BatchInsertDocTest {
             activities.add(node, properties);
             indice++;
         }
-        site_max_indice = indice;
+        site_max_indice = indice - 1;
         LOGGER.info("End site indice : {}", site_max_indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         activities.flush();
@@ -141,9 +148,9 @@ public class BatchInsertDocTest {
         persons.setCacheCapacity("type", 100000);
 
         //Member
-        int member_min_indice = indice + 1;
+        int member_min_indice = indice;
         LOGGER.info("Begin member indice : {}", member_min_indice);
-        for (int cpt = member_min_indice; cpt < member_min_indice + NUMBER_OF_MEMBERS + 1; cpt++) {
+        for (int cpt = member_min_indice; cpt < member_min_indice + NUMBER_OF_MEMBERS; cpt++) {
             final Map<String, Object> properties = new HashMap<>(6);
             properties.put("id", cpt);
             properties.put("firstname", "firstname" + randBetween(1, MAX_FIRST_NAME));
@@ -160,7 +167,7 @@ public class BatchInsertDocTest {
             indice++;
         }
 
-        int member_max_indice = indice;
+        int member_max_indice = indice - 1;
         LOGGER.info("End member indice : {}", member_max_indice);
         //make the changes visible for reading, use this sparsely, requires IO!
         persons.flush();
