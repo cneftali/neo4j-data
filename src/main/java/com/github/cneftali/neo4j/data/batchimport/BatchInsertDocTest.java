@@ -1,5 +1,6 @@
 package com.github.cneftali.neo4j.data.batchimport;
 
+import org.apache.commons.io.FileUtils;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
@@ -9,6 +10,7 @@ import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +36,7 @@ public class BatchInsertDocTest {
     private static final double MIN_AMOUNT = 1.0;
     public static final int NUMBER_OF_PRODUCTS = 1000;
     public static final int NUMBER_OF_SITES = 30000;
-    public static final int NUMBER_OF_MEMBERS = 1000000;
+    public static final int NUMBER_OF_MEMBERS = 100000;
 
     private static int allTransactionCount;
     private static int allActionCount;
@@ -50,6 +52,11 @@ public class BatchInsertDocTest {
     public static void main(final String[] args) throws IOException {
 
         LOGGER.info("Generation ...");
+        File file = new File(DB_PATH);
+        if (file.exists()) {
+            LOGGER.info("Deleting existing directory");
+            FileUtils.deleteDirectory(file);
+        }
         final BatchInserter inserter = BatchInserters.inserter(DB_PATH);
         final BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
 
