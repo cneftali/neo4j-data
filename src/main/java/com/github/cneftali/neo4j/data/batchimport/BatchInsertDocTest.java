@@ -36,7 +36,7 @@ public class BatchInsertDocTest {
     private static final double MIN_AMOUNT = 1.0;
     public static final int NUMBER_OF_PRODUCTS = 1000;
     public static final int NUMBER_OF_SITES = 30000;
-    public static final int NUMBER_OF_MEMBERS = 100000;
+    public static final int NUMBER_OF_MEMBERS = 1000000;
 
     private static int allTransactionCount;
     private static int allActionCount;
